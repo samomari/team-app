@@ -12,8 +12,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { z } from "zod";
-import { useFormStatus } from "react-dom";
 import { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
     email: z.string().email({
@@ -26,6 +27,8 @@ const formSchema = z.object({
 
 export default function LoginForm () {
     const [loading, setLoading] = useState(false);
+    const [error, setError] =  useState<string | null>(null);
+    const router = useRouter();
 
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -35,16 +38,36 @@ export default function LoginForm () {
         },
     });
 
-    const onSubmit = (data: z.infer<typeof formSchema>) => {
-        console.log(data);
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
         setLoading(true);
-    }
+        setError(null);
 
-    const { pending } = useFormStatus();
+        try {
+            const response = await axios.post("/api/login", {
+                email: data.email,
+                password: data.password,
+            });
+
+            localStorage.setItem("accessToken", response.data.accessToken);
+
+            router.push("/dashboard");
+        } catch (error: any) {
+            setLoading(false);
+            form.setError("root", {
+                type: "manual",
+                message: error.response?.data?.message || error.message || "Something went wrong.",
+            });
+        }
+    }
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {form.formState.errors.root && (
+                    <div className="text-red-500 text-sm flex justify-center">
+                        {form.formState.errors.root.message}
+                    </div>
+                )}
                 <div className="space-y-4">
                     <FormField 
                         control={form.control}
@@ -73,7 +96,7 @@ export default function LoginForm () {
                         )}
                     />
                 </div>
-                <Button type="submit" className="w-full" disabled={pending}>
+                <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Loading..." : "Login"}
                 </Button>
             </form>

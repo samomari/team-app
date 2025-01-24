@@ -12,26 +12,34 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { z } from "zod";
-import { useFormStatus } from "react-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
-const formSchema = z.object({
-    email: z.string().email({
-        message: "Please enter a valid email address",
-    }),
-    name: z.string().min(1, {
-        message: "Please enter your name",
-    }),
-    password: z.string().min(1, {
-        message: "Please enter a password",
-    }),
-    confirmPassword: z.string().min(1, {
-        message: "Please confirm your password",
-    }),
-})
+const formSchema = z
+    .object({
+        email: z.string().email({
+            message: "Please enter a valid email address",
+        }),
+        name: z.string().min(1, {
+            message: "Please enter your name",
+        }),
+        password: z.string().min(1, {
+            message: "Please enter a password",
+        }),
+        confirmPassword: z.string().min(1, {
+            message: "Please confirm your password",
+        }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+    })
 
 export default function RegisterForm () {
     const [loading, setLoading] = useState(false);
+    const [error, setError] =  useState<string | null>(null);
+    const router = useRouter();
     
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -43,16 +51,49 @@ export default function RegisterForm () {
         },
     });
 
-    const onSubmit = (data: z.infer<typeof formSchema>) => {
-        console.log(data);
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
         setLoading(true);
-    }
+        setError(null);
 
-    const { pending } = useFormStatus();
+        try {
+            await axios.post("/api/register", {
+                name: data.name,
+                email: data.email,
+                password: data.password,
+            });
+
+            const loginResponse = await axios.post("/api/login", {
+                email: data.email,
+                password: data.password,
+            })
+
+            localStorage.setItem("token", loginResponse.data.token);
+                
+            router.push("/dashboard");
+        } catch (error: any) {
+            setLoading(false);
+            if (error.response?.status === 409) {
+                form.setError("email", {
+                    type: "manual",
+                    message: error.response.data.message || "Email is already in use.",
+                });
+            } else {
+                form.setError("root", {
+                    type: "manual",
+                    message: "Something went wrong. Please try again later.",
+                });
+            }
+        }
+    }
     
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {form.formState.errors.root && (
+                    <div className="text-red-500 text-sm flex justify-center">
+                        {form.formState.errors.root.message}
+                    </div>
+                )}
                 <div className="space-y-4">
                     <FormField 
                         control={form.control}
@@ -107,7 +148,7 @@ export default function RegisterForm () {
                         )}
                     />
                 </div>
-                <Button type="submit" className="w-full" disabled={pending}>
+                <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Loading..." : "Register"}
                 </Button>
             </form>
