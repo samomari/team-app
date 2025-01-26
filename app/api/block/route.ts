@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     await db
       .update(user)
-      .set({ status: "blocked" })
+      .set({ status: "blocked" , accessToken: "" })
       .where(inArray(user.id, values.ids))
       .returning({
         id: user.id,
