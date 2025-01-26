@@ -27,7 +27,7 @@ const formSchema = z.object({
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
-  const [,setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm({
@@ -56,7 +56,7 @@ export default function LoginForm() {
       form.setError("root", {
         type: "manual",
         message:
-        // @ts-expect-error ignore
+          // @ts-expect-error ignore
           error.response?.data?.message ||
           // @ts-expect-error ignore
           error.message ||

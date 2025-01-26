@@ -38,7 +38,7 @@ const formSchema = z
 
 export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
-  const [,setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm({

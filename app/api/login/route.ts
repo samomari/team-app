@@ -3,6 +3,7 @@ import { user } from "@/drizzle/schema";
 import { comparePassword, generateAccessToken } from "@/utils/auth";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import { User } from "@/types";
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
       return new NextResponse("Missing Fields", { status: 400 });
     }
 
-    const existingUser = await db
+    const existingUser: User[] = await db
       .select()
       .from(user)
       .where(eq(user.email, email))
@@ -22,6 +23,13 @@ export async function POST(req: Request) {
     if (!existingUser || !existingUser.length) {
       return new NextResponse(
         JSON.stringify({ message: "Invalid credentials" }),
+        { status: 401, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (existingUser[0].status === "blocked") {
+      return new NextResponse(
+        JSON.stringify({ message: "This user is blocked" }),
         { status: 401, headers: { "Content-Type": "application/json" } },
       );
     }

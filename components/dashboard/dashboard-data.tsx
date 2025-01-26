@@ -43,7 +43,7 @@ export default function DashboardDataTable<TData, TValue>({
       rowSelection,
     },
   });
-  
+
   const handleBlock = async () => {
     try {
       const ids = table
@@ -51,23 +51,23 @@ export default function DashboardDataTable<TData, TValue>({
         // @ts-expect-error ignore
         .rows.map((row) => row.original.id);
 
-    if (ids.length) {
+      if (ids.length) {
         const response = await axios.post("/api/block", { ids });
 
-      toast({
-        title: "Success",
-        description: response.data.message,
-        variant: "default",
-      });
-
-      onUpdate(response.data.data);
-    } else {
         toast({
-            title: "Error",
-            description: "No users selected to block.",
-            variant: "destructive",
-          });
-    }
+          title: "Success",
+          description: response.data.message,
+          variant: "default",
+        });
+
+        onUpdate(response.data.data);
+      } else {
+        toast({
+          title: "Error",
+          description: "No users selected to block.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -85,22 +85,21 @@ export default function DashboardDataTable<TData, TValue>({
         // @ts-expect-error ignore
         .rows.map((row) => row.original.id);
 
-    if (ids.length) {
+      if (ids.length) {
         const response = await axios.post("/api/unblock", { ids });
         onUpdate(response.data.data);
         toast({
-            title: "Success",
-            description: response.data.message,
-            variant: "default",
-          });
-    } else {
+          title: "Success",
+          description: response.data.message,
+          variant: "default",
+        });
+      } else {
         toast({
-            title: "Error",
-            description: "No users selected to unblock.",
-            variant: "destructive",
-          });
-    }
-      
+          title: "Error",
+          description: "No users selected to unblock.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -117,15 +116,29 @@ export default function DashboardDataTable<TData, TValue>({
         .getSelectedRowModel()
         // @ts-expect-error ignore
         .rows.map((row) => row.original.id);
-      const response = await axios.post("/api/delete", { ids });
-      const cookie = document.cookie;
-      const token = cookie.split("accessToken=")[1]?.split(";")[0];
-      if (!token) {
-        router.push("/auth");
+      if (ids.length) {
+        const response = await axios.post("/api/delete", { ids });
+        toast({
+          title: "Success",
+          description: response.data.message,
+          variant: "default",
+        });
+        router.refresh();
+        onUpdate(response.data.data || []);
+      } else {
+        toast({
+          title: "Error",
+          description: "No users selected to delete.",
+          variant: "destructive",
+        });
       }
-      onUpdate(response.data.data || []);
     } catch (error) {
-      console.log(error);
+      toast({
+        title: "Error",
+        // @ts-expect-error ignore
+        description: error.response?.data?.message || "Something went wrong",
+        variant: "destructive",
+      });
     }
   };
   return (

@@ -1,22 +1,11 @@
 "use client";
-import {
-  Card
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import DashboardDataTable from "./dashboard-data";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
-
-export type User = {
-  id: string;
-  status: "active" | "blocked";
-  email: string;
-  passwrord: string;
-  accessToken: string;
-  lastLogin: Date;
-  createdAt: Date;
-};
+import { User } from "@/types";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -61,7 +50,7 @@ export const columns: ColumnDef<User>[] = [
       const lastLogin = row.getValue("lastLogin");
       // @ts-expect-error ignore
       return lastLogin ? new Date(lastLogin).toLocaleString("en-GB") : "";
-    }
+    },
   },
 ];
 

@@ -25,7 +25,7 @@ export const generateAccessToken = (userId: string): string => {
 
 export const verifyAccessToken = async (token: string) => {
   try {
-    const isValid = jwtVerify(token,  new TextEncoder().encode(JWT_SECRET));
+    const isValid = jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
 
     if (!isValid) {
       return Promise.resolve(false);

@@ -1,8 +1,9 @@
 import { db } from "@/drizzle/index";
 import { user } from "@/drizzle/schema";
-import { inArray} from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { checkUserStatus } from "@/utils/checkUserStatus";
+import { desc } from "drizzle-orm";
 export async function POST(req: NextRequest) {
   try {
     const accessToken = req.cookies.get("accessToken")?.value;
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const data = await db
+    await db
       .update(user)
       .set({ status: "blocked" })
       .where(inArray(user.id, values.ids))
@@ -55,6 +56,17 @@ export async function POST(req: NextRequest) {
         status: user.status,
         lastLogin: user.lastLogin,
       });
+
+    const data = await db
+      .select({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        status: user.status,
+        lastLogin: user.lastLogin,
+      })
+      .from(user)
+      .orderBy(desc(user.lastLogin));
 
     return NextResponse.json({
       message: "Selected users blocked successfully",
