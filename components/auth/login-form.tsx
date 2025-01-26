@@ -48,9 +48,10 @@ export default function LoginForm () {
                 password: data.password,
             });
 
-            localStorage.setItem("accessToken", response.data.accessToken);
+            if (response.status === 200) {
+                router.push("/dashboard");
+            }
 
-            router.push("/dashboard");
         } catch (error: any) {
             setLoading(false);
             form.setError("root", {

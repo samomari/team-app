@@ -29,7 +29,7 @@ export async function POST(req: Request) {
                 { status: 409, headers: { "Content-Type": "application/json" } }
             );
         }
-        console.error("USER_POST", error);
+        console.error("USER_POST: ", error);
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 }

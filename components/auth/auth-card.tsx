@@ -8,7 +8,7 @@ import {
 import LoginForm from "./login-form";
 import RegisterForm from "./register-form";
 import { useCallback, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 
 export default function AuthCard () {
@@ -36,7 +36,7 @@ export default function AuthCard () {
     }, []);
 
     return (
-        <Card className="xl:w-1/4 md:w-1/2 shadow-md">
+        <Card className="max-w-[400px] w-full shadow-md">
             <CardHeader className="w-full flex flex-col gap-y-4 items-center justify-center">
                 <h1 className="text-3xl font-semibold">
                     {content[variant].title}

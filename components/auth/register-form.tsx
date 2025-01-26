@@ -62,12 +62,10 @@ export default function RegisterForm () {
                 password: data.password,
             });
 
-            const loginResponse = await axios.post("/api/login", {
+            await axios.post("/api/login", {
                 email: data.email,
                 password: data.password,
             })
-
-            localStorage.setItem("token", loginResponse.data.token);
                 
             router.push("/dashboard");
         } catch (error: any) {

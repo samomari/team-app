@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/index";
 import { user } from "@/drizzle/schema";
-import { comparePassword, generateAccessToken, generateRefreshToken } from "@/utils/auth";
+import { comparePassword, generateAccessToken } from "@/utils/auth";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
@@ -19,6 +19,8 @@ export async function POST(req: Request) {
             .limit(1)
             .execute();
 
+        console.log(existingUser);
+        
         if (!existingUser || !existingUser.length) {
             return new NextResponse(
                 JSON.stringify({ message: "Invalid credentials" }),
@@ -36,19 +38,32 @@ export async function POST(req: Request) {
             );
         }
 
+       
+        
+
         const accessToken = generateAccessToken(userRecord.id);
-        const refreshToken = generateRefreshToken(userRecord.id);
 
-        const headers = new Headers();
-        headers.set('Set-Cookie', `refreshToken=${refreshToken}; HttpOnly; Secure; Path=/; SameSite=Strict`);
+        await db 
+            .update(user)
+            .set({ lastLogin: new Date(), accessToken })
+            .where(eq(user.id, userRecord.id))
+            .execute();
 
-        return new NextResponse(
-            JSON.stringify({ accessToken }),
-            { status: 200, headers }
-        );
+
+        const response = NextResponse.json({ message: "Logged in successfully" });
+
+        response.cookies.set("accessToken", accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            path: "/",
+            maxAge: 60 * 24 * 30,
+        });
+
+        return response;
 
     } catch (error: any) {
-        console.log("LOGIN_ERROR", error);
+        console.log("LOGIN_ERROR: ", error);
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 }
