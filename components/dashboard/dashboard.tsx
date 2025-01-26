@@ -59,6 +59,7 @@ export const columns: ColumnDef<User>[] = [
     header: "Last Seen",
     cell: ({ row }) => {
       const lastLogin = row.getValue("lastLogin");
+      // @ts-expect-error ignore
       return lastLogin ? new Date(lastLogin).toLocaleString("en-GB") : "";
     }
   },
