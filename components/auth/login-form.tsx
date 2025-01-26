@@ -27,7 +27,7 @@ const formSchema = z.object({
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [,setError] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm({
@@ -51,12 +51,14 @@ export default function LoginForm() {
       if (response.status === 200) {
         router.push("/dashboard");
       }
-    } catch (error: any) {
+    } catch (error) {
       setLoading(false);
       form.setError("root", {
         type: "manual",
         message:
+        // @ts-expect-error ignore
           error.response?.data?.message ||
+          // @ts-expect-error ignore
           error.message ||
           "Something went wrong.",
       });

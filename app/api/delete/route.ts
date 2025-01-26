@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/index";
 import { user } from "@/drizzle/schema";
-import { inArray, sql } from "drizzle-orm";
+import { inArray} from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { desc } from "drizzle-orm";
 export async function POST(req: NextRequest) {

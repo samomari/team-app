@@ -20,7 +20,8 @@ export async function POST(req: Request) {
     });
 
     return new NextResponse("Success", { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
+    // @ts-expect-error ignore
     if (error.code === "23505" && error.detail?.includes("Key (email)")) {
       return new NextResponse(
         JSON.stringify({ message: "Email is already in use." }),

@@ -17,13 +17,7 @@ import { useState } from "react";
 import Toolbar from "./toolbar";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
-import { redirect } from "next/navigation";
-import { Router } from "next/router";
 import { useRouter } from "next/navigation";
-
-type RowType = {
-    original: any
-}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -54,7 +48,8 @@ export default function DashboardDataTable<TData, TValue>({
     try {
       const ids = table
         .getSelectedRowModel()
-        .rows.map((row: RowType) => row.original.id);
+        // @ts-expect-error ignore
+        .rows.map((row) => row.original.id);
 
     if (ids.length) {
         const response = await axios.post("/api/block", { ids });
@@ -73,9 +68,10 @@ export default function DashboardDataTable<TData, TValue>({
             variant: "destructive",
           });
     }
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
+        // @ts-expect-error ignore
         description: error.response?.data?.message || "Something went wrong",
         variant: "destructive",
       });
@@ -86,7 +82,8 @@ export default function DashboardDataTable<TData, TValue>({
     try {
       const ids = table
         .getSelectedRowModel()
-        .rows.map((row: RowType) => row.original.id);
+        // @ts-expect-error ignore
+        .rows.map((row) => row.original.id);
 
     if (ids.length) {
         const response = await axios.post("/api/unblock", { ids });
@@ -104,9 +101,10 @@ export default function DashboardDataTable<TData, TValue>({
           });
     }
       
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
+        // @ts-expect-error ignore
         description: error.response?.data?.message || "Something went wrong",
         variant: "destructive",
       });
@@ -117,7 +115,8 @@ export default function DashboardDataTable<TData, TValue>({
     try {
       const ids = table
         .getSelectedRowModel()
-        .rows.map((row: RowType) => row.original.id);
+        // @ts-expect-error ignore
+        .rows.map((row) => row.original.id);
       const response = await axios.post("/api/delete", { ids });
       const cookie = document.cookie;
       const token = cookie.split("accessToken=")[1]?.split(";")[0];

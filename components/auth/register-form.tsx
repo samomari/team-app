@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -38,7 +38,7 @@ const formSchema = z
 
 export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [,setError] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm({
@@ -68,11 +68,13 @@ export default function RegisterForm() {
       });
 
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       setLoading(false);
+      // @ts-expect-error ignore
       if (error.response?.status === 409) {
         form.setError("email", {
           type: "manual",
+          // @ts-expect-error ignore
           message: error.response.data.message || "Email is already in use.",
         });
       } else {
